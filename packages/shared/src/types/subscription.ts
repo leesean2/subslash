@@ -1,0 +1,98 @@
+export type SubscriptionCategory =
+  "ott" | "music" | "cloud" | "news" | "fitness" | "shopping" | "ai" | "other";
+
+export type SubscriptionStatus = "active" | "killed";
+export type RiskLevel = "green" | "yellow" | "red";
+export type Currency = "KRW" | "USD";
+export type BillingCycle = "monthly" | "yearly";
+
+export type AccountProvider = "google" | "kakao" | "naver" | "apple" | "email";
+
+export interface LinkedAccount {
+  id: string;
+  provider: AccountProvider;
+  name: string;
+  emailOrId: string;
+  color?: string;
+  createdAt: string;
+}
+
+export type PaymentMethod =
+  "credit_card" | "kakaopay" | "naverpay" | "apple_iap" | "google_play" | "telecom" | "other";
+
+export interface Subscription {
+  id: string;
+  name: string;
+  amount: number;
+  currency: Currency;
+  billingDay: number;
+  billingCycle: BillingCycle;
+  category: SubscriptionCategory;
+  status: SubscriptionStatus;
+  cancelUrl?: string;
+  cancelGuide?: string;
+  iconUrl?: string;
+  createdAt: string;
+  killedAt?: string;
+
+  // Linked account & payment method fields
+  linkedAccountId?: string;
+  linkedAccountName?: string;
+  paymentMethod?: PaymentMethod;
+  accountMemo?: string;
+}
+
+export type SubscriptionFormData = Omit<Subscription, "id" | "status" | "createdAt" | "killedAt">;
+
+export type EmailType = "payment" | "cancellation" | "refund" | "onetime";
+
+export interface EmailReceipt {
+  id: string;
+  sender: string;
+  senderEmail: string;
+  recipientEmail?: string;
+  subject: string;
+  receivedDate: string; // YYYY-MM-DD
+  daysAgo: number;
+  amount: number;
+  currency: Currency;
+  serviceName: string;
+  matchedPresetId?: string;
+  billingDay: number;
+  snippet: string;
+  isWithin30Days: boolean;
+  cancelUrl?: string;
+  cancelGuide?: string;
+  category: SubscriptionCategory;
+  paymentMethod?: PaymentMethod;
+  provider?: "google" | "naver";
+  emailType?: EmailType;
+}
+
+export interface DiscoveredSubscription {
+  id: string;
+  name: string;
+  amount: number;
+  currency: Currency;
+  billingDay: number;
+  billingCycle: BillingCycle;
+  category: SubscriptionCategory;
+  cancelUrl?: string;
+  cancelGuide?: string;
+  paymentMethod?: PaymentMethod;
+  linkedAccountId?: string;
+  linkedAccountName?: string;
+  recipientEmail?: string;
+  source: "gmail" | "sms" | "manual";
+  emailProvider?: "google" | "naver";
+  sourceSnippet?: string;
+  confidence: "high" | "medium";
+  selected: boolean;
+  receiptDate?: string;
+  daysAgo?: number;
+  statusReason?: string;
+  isWithin30Days?: boolean;
+  isCanceled?: boolean;
+  cancellationDate?: string;
+  cancellationSnippet?: string;
+}

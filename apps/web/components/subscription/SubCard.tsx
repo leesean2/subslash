@@ -1,0 +1,113 @@
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { Subscription, formatCurrency, getMonthlyAmountKRW } from "@subslash/shared";
+import { Card, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { DdayCountdown } from "../dashboard/DdayCountdown";
+import { cn } from "@lib/utils";
+
+interface SubCardProps {
+  subscription: Subscription;
+  onCheckIn?: (id: string) => void;
+  onKill?: (id: string) => void;
+  onRevive?: (id: string) => void;
+  onDelete?: (id: string) => void;
+}
+
+export function SubCard({ subscription, onCheckIn, onKill, onRevive, onDelete }: SubCardProps) {
+  const isKilled = subscription.status === "killed";
+
+  return (
+    <Card
+      className={cn(
+        "overflow-hidden transition-all",
+        isKilled ? "opacity-60 bg-gray-50 dark:bg-gray-900 grayscale" : "hover:shadow-md",
+      )}
+    >
+      <CardContent className="p-5 flex flex-col gap-4">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-3">
+            <div className="text-3xl bg-secondary w-12 h-12 flex items-center justify-center rounded-xl shadow-inner">
+              {subscription.iconUrl || "📦"}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/subs/${subscription.id}`}
+                  className="font-bold text-lg leading-none hover:underline hover:text-primary transition-colors flex items-center gap-1.5"
+                >
+                  <span>{subscription.name}</span>
+                  <span className="text-xs text-muted-foreground opacity-70">⚙️</span>
+                </Link>
+                {isKilled && (
+                  <Badge variant="secondary" className="text-[10px]">
+                    해지 완료
+                  </Badge>
+                )}
+              </div>
+              <p className="text-muted-foreground text-sm mt-1">
+                {subscription.billingCycle === "yearly" ? "연 " : "월 "}
+                {formatCurrency(subscription.amount, subscription.currency)}
+                {(subscription.currency !== "KRW" || subscription.billingCycle === "yearly") && (
+                  <span className="text-xs opacity-80">
+                    {" "}
+                    (월 ₩{getMonthlyAmountKRW(subscription).toLocaleString()})
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          {!isKilled && (
+            <div className="flex flex-col items-end gap-2">
+              <DdayCountdown billingDay={subscription.billingDay} />
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2 border-t">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge variant="outline">{subscription.category}</Badge>
+            {subscription.linkedAccountName && (
+              <Badge variant="secondary" className="text-[11px]">
+                👤 {subscription.linkedAccountName}
+              </Badge>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            {isKilled ? (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => onRevive?.(subscription.id)}>
+                  다시 살리기
+                </Button>
+                {onDelete && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:bg-destructive/10"
+                    onClick={() => onDelete?.(subscription.id)}
+                  >
+                    삭제
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" onClick={() => onCheckIn?.(subscription.id)}>
+                  체크인
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => onKill?.(subscription.id)}>
+                  해지하기
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

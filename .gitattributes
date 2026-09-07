@@ -1,0 +1,7 @@
+# Prettier is configured with endOfLine: "lf", so pin LF in the repository and
+# in every working tree. Without this, core.autocrlf=true on Windows checks out
+# CRLF and `pnpm format:check` flags every file.
+* text=auto eol=lf
+
+# Lockfiles are generated; keep them out of diffs and merge conflicts.
+pnpm-lock.yaml linguist-generated=true -diff
